@@ -1,0 +1,82 @@
+---
+title: "Calculation Assignment 3 - Akshay Danthi"
+output: html_notebook
+---
+
+
+```{r}
+# Read the CSV file into a R dataframe
+dogfood_need <- read.csv("MSBA324_Week13_CalculationAssignmentCluster.csv")
+dogfood_need
+
+#Calculate the distance matrix
+dist_mat <- dist(dogfood_need, method="euclidean")
+
+# Perform hierarchical agglomerative clustering with Ward's revised method
+clusters <- hclust(dist_mat, method="ward.D2")
+clusters
+
+# Plot the cluster dendogram
+plot(clusters)
+
+# *From the plot, by intersecting at the tallest vertical lines, we find that there are 3 clusters here. Hence number of clusters (k) has been chosen to be 3 below.*
+
+# Identify each of the 3 clusters using a blue rectangle 
+rect.hclust(clusters, k=3, border="blue")
+
+# Divide the data into 3 clusters
+clusterid <- cutree(clusters, k=3)
+clusterid
+
+# Create separate variables for each cluster data
+cluster_1 <- subset(dogfood_need, clusterid==1)
+cluster_2 <- subset(dogfood_need, clusterid==2)
+cluster_3 <- subset(dogfood_need, clusterid==3)
+
+# Make it an iterable list to traverse through them using a loop
+clusters <- list(cluster_1, cluster_2, cluster_3)
+
+# Initialize a matrix for 3 clusters and 6 S columns
+cluster_means_matrix <- matrix(nrow = 3, ncol = 6)
+
+# Loop over the clusters
+for(i in 1:length(clusters)) {
+  
+  # Loop over the columns S1 to S6
+  for (j in 1:6) {
+    column_name <- paste("S", j, sep = "")
+    mean_value <- mean(clusters[[i]][[column_name]], na.rm = TRUE)
+    
+    # Store mean value directly in the matrix
+    cluster_means_matrix[i, j] <- mean_value
+  }
+}
+
+# Set the column and row names for the matrix
+colnames(cluster_means_matrix) <- paste("S", 1:6, sep = "")
+rownames(cluster_means_matrix) <- paste("Cluster", 1:3, sep = "")
+
+# View the matrix
+cluster_means_matrix
+
+# Commentary on output of cluster_means_matrix:
+
+#S1 ->	It is important for me to buy dog food that prevents canine cavities
+#S2 ->	I like dog food that gives my dog a shiny coat
+#S3 ->	Dog food should strengthen gums
+#S4 ->	Dog food should make my dog's breath fresher
+#S5 ->	It is not a priority for me that dog food prevent tooth decay or cavities (reverse coded question)
+#S6 ->	When I buy dog food, I look for food that gives my dog shiny teeth
+
+# We see that for Cluster 1, S1 and S3 opinions carry a disproportionately higher weight.
+
+# We see that for Cluster 2, S2 and S6 opinions carry a disproportionately higher weight.
+
+# We see that for Cluster 3, the means are relatively even and not disproportionately higher.
+
+# We can see that Cluster 1 respondents while having a strong preference to Strengthen gums (S3), also prefer to buy food that prevents cavities (S1). This conclusion is also further strengthened by their lower score to the reverse-coded question about Cavities (S5).
+
+# Similarly, respondents of Cluster 2 care more about the appearance of their Dog (S2->Shiny coat and S6-> Shiny teeth).
+
+# However, Cluster 3 respondents have a relatively even score for all the opinions and do not have any disproportionately high Mean for any opinion. This means that Either A. They do not have strong opinions on Dog food they purchase OR B. Their interests are not represented in this survey.
+```
